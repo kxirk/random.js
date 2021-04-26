@@ -1,25 +1,35 @@
-/* Copyright (c) 2020 Cody Morton https://github.com/kxirk
- *
+/* Copyright (c) 2020-2021 Cody Morton (https://github.com/kxirk)
  * This software is released under the terms of the MIT liscence (https://opensource.org/licenses/MIT).
  */
 
 
 /**
- * A 32-bit seeded PRNG using MurmurHash3 (seeding) and Mulberry32 (number generation). Based of JavaScript implementations by bryc (https://github.com/bryc/code/blob/master/jshash/PRNGs.md).
- * Verion: 0.1.2
- * Date: 2020-12-19
+ * A 32-bit seeded PRNG. Based on JavaScript implementations by bryc (https://github.com/bryc/code/blob/master/jshash/PRNGs.md).
+ * Verion: 1.0.0
+ * Date: 2021-04-26
  */
-
 const Random = class {
-  /** @member {number} */
+  /** @type {number} */
   #state;
 
   /**
    * Initializes Random.
-   * @argument {number} [seed] - initial state of Random generator.
+   * @argument {number} [seed] - initial state of generator.
    */
   constructor (seed = Random.generateSeed()) {
-    this.setState(seed);
+    this.state = seed;
+  }
+
+  /**
+   * Secure random string generator.
+   * @argument {number} [charCount] - number of characters to generate.
+   * @returns {string} secure random string.
+   */
+  static generateSecureString (charCount = 32) {
+    const arr = new Uint16Array(charCount);
+    crypto.getRandomValues(arr);
+
+    return String.fromCharCode(...arr);
   }
 
   /**
@@ -27,7 +37,7 @@ const Random = class {
    * @argument {string} [seedString] - input string to MurmurHash3 algorithm.
    * @returns {number} output seed.
    */
-  static generateSeed (seedString = Date.now().toString()) {
+  static generateSeed (seedString = Random.generateSecureString()) {
     // MurmurHash3
     let h = 2166136261 >>> 0;
     let k = 0;
@@ -42,33 +52,26 @@ const Random = class {
     h ^= h >>> 16; h = Math.imul(h, 2246822507);
     h ^= h >>> 13; h = Math.imul(h, 3266489909);
     return (h ^= h >>> 16) >>> 0;
+    //
   }
 
 
-  /**
-   * XMessenger state accessor.
-   * @returns {number} Random state.
-   */
-  getState () {
+  /** @type {number} */
+  get state () {
     return this.#state;
   }
-  /**
-   * Random state mutator.
-   * @argument {number} state - Random state.
-   * @returns {undefined}
-   */
-  setState (state) {
-    this.#state = state ?? this.#state;
+  set state (state) {
+    this.#state = (state ?? this.#state);
   }
 
 
   /**
-   * Generates a pseudorandom number [min, max) using the Mulberry32 algorithm.
+   * Generates a pseudorandom number [min, max).
    * @argument {number} [min] - minimum bound.
    * @argument {number} [max] - maximum bound.
    * @returns {number} a bounded pseudorandom number.
    */
-  next (min = 0, max = 1) {
+  next (min = 0.0, max = 1.0) {
     // Mulberry32
     this.#state |= 0; this.#state += 0x6D2B79F5 | 0;
 
@@ -79,6 +82,73 @@ const Random = class {
     //
 
     return (random * (max - min)) + min;
+  }
+
+  /**
+   * Generates a pseudorandom boolean value.
+   * @argument {number} [probabilityTrue] - probability of true [0, 1].
+   * @returns {boolean} a pseudorandom boolean value.
+   */
+  nextBoolean (probabilityTrue = 0.5) {
+    return (this.next() < probabilityTrue);
+  }
+
+  /**
+   * Generates a normally distributed, pseudorandom number [min, max].
+   * @argument {number} [min] - minimum bound.
+   * @argument {number} [max] - maximum bound.
+   * @argument {number} [mean] - location.
+   * @argument {number} [stdev] - scale.
+   * @argument {number} [skew] - shape.
+   * @returns {number} a bounded, normally distributed pseudorandom number.
+   */
+  nextGaussian (min = 0.0, max = 1.0, mean = 0.0, stdev = 1.0, skew = 0.0) {
+    const randomNormals = () => {
+      // Box–Muller transform
+      let u1 = 0; while (u1 === 0) u1 = this.next();
+      let u2 = 0; while (u2 === 0) u2 = this.next();
+
+      const r = Math.sqrt(-2.0 * Math.log(u1));
+      const theta = 2.0 * Math.PI * u2;
+
+      return [r * Math.cos(theta), r * Math.sin(theta)];
+      //
+    };
+
+    // multivariate skew-normal distribution
+    const [u, v] = randomNormals();
+
+    let random;
+    if (skew === 0) {
+      random = mean + (stdev * u);
+    } else {
+      const correlation = skew / Math.sqrt(1 + (skew ** 2));
+      const u1 = (correlation * u) + (v * Math.sqrt(1 - (correlation ** 2)));
+      const z = (u >= 0 ? u1 : -u1);
+
+      random = mean + (stdev * z);
+    }
+    //
+
+    const randomMin = (-3.0 * stdev);
+    const randomMax = (+3.0 * stdev);
+
+    const ret = ((random - randomMin) * (max - min) / (randomMax - randomMin)) + min;
+    if (ret < min || ret > max) return this.nextGaussian(min, max, mean, stdev, skew);
+    return ret;
+  }
+
+  /**
+   * Generates a normally distributed, pseudorandom integer [min, max].
+   * @argument {number} [min] - minimum bound.
+   * @argument {number} [max] - maximum bound.
+   * @argument {number} [mean] - location.
+   * @argument {number} [stdev] - scale.
+   * @argument {number} [skew] - shape.
+   * @returns {number} a bounded, normally distributed pseudorandom integer.
+   */
+  nextGaussianInt (min = 0, max = 1, mean = 0.0, stdev = 1.0, skew = 0.0) {
+    return Math.floor(this.nextGaussian(min, max, mean, stdev, skew));
   }
 
   /**
@@ -93,44 +163,11 @@ const Random = class {
   }
 
   /**
-   * Generates a pseudorandom boolean value.
-   * @argument {number} [probabilityTrue] - probability of true [0, 1].
-   * @returns {boolean} a pseudorandom boolean value.
+   * Generates a pseudorandom integer -1 or +1.
+   * @argument {number} [probabilityPositive] - probability of positive 1 [0, 1].
+   * @returns {number} a pseudorandom integer -1 or +1.
    */
-  nextBoolean (probabilityTrue = 0.5) {
-    return (this.next() < probabilityTrue);
+  nextSign (probabilityPositive = 0.5) {
+    return (this.nextBoolean(probabilityPositive) ? +1 : -1);
   }
-
-  /**
-   * Generates a normally distributed, pseudorandom number [min, max] using the Box–Muller transform.
-   * @argument {number} [min] - minimum bound.
-   * @argument {number} [max] - maximum bound.
-   * @returns {number} a bounded, normally distributed pseudorandom number.
-   */
-  nextGaussian (min = 0, max = 1) {
-    let u = 0; while (u === 0) u = this.next();
-    let v = 0; while (v === 0) v = this.next();
-
-    const num = (Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v) / 10) + 0.5;
-
-    if (num > 1 || num < 0) return this.nextGaussian(min, max);
-    return (num * max) + min;
-  }
-
-  /**
-   * Generates a normally distributed, pseudorandom integer [min, max].
-   * @argument {number} [min] - minimum bound.
-   * @argument {number} [max] - maximum bound.
-   * @returns {number} a bounded, normally distributed pseudorandom integer.
-   */
-  nextGaussianInt (min = 0, max = 1) {
-    return Math.floor(this.nextGaussian(min, max));
-  }
-
-
-  static next (min, max) { return new Random().next(min, max); }
-  static nextInt (min, max, maxInclusive) { return new Random().nextInt(min, max, maxInclusive); }
-  static nextBoolean (probabilityTrue) { return new Random().nextBoolean(probabilityTrue); }
-  static nextGaussian (min, max) { return new Random().nextGaussian(min, max); }
-  static nextGaussianInt (min, max) { return new Random().nextGaussianInt(min, max); }
 };
