@@ -1,4 +1,4 @@
-Dungeon.js
+Random.js
 ==========
 
 A 32-bit seeded PRNG using MurmurHash3 (seeding) and Mulberry32 (number generation). 
