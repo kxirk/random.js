@@ -1,12 +1,12 @@
-/* Copyright (c) 2020-2021 Cody Morton (https://github.com/kxirk)
+/* Copyright (c) 2020-2021 Cody Morton https://github.com/kxirk
  * This software is released under the terms of the MIT liscence (https://opensource.org/licenses/MIT).
  */
 
 
 /**
  * A 32-bit seeded PRNG. Based on JavaScript implementations by bryc (https://github.com/bryc/code/blob/master/jshash/PRNGs.md).
- * Verion: 1.0.0
- * Date: 2021-04-26
+ * Verion: 1.1.0
+ * Date: 2021-07-24
  */
 const Random = class {
   /** @type {number} */
@@ -35,7 +35,7 @@ const Random = class {
   /**
    * MurmurHash3 seed generator.
    * @argument {string} [seedString] - input string to MurmurHash3 algorithm.
-   * @returns {number} output seed.
+   * @returns {number} seed.
    */
   static generateSeed (seedString = Random.generateSecureString()) {
     // MurmurHash3
@@ -83,6 +83,9 @@ const Random = class {
 
     return (random * (max - min)) + min;
   }
+  static next (min, max) {
+    return new Random().next(min, max);
+  }
 
   /**
    * Generates a pseudorandom boolean value.
@@ -92,15 +95,18 @@ const Random = class {
   nextBoolean (probabilityTrue = 0.5) {
     return (this.next() < probabilityTrue);
   }
+  static nextBoolean (probabilityTrue) {
+    return new Random().nextBoolean(probabilityTrue);
+  }
 
   /**
    * Generates a normally distributed, pseudorandom number [min, max].
    * @argument {number} [min] - minimum bound.
    * @argument {number} [max] - maximum bound.
-   * @argument {number} [mean] - location.
-   * @argument {number} [stdev] - scale.
-   * @argument {number} [skew] - shape.
-   * @returns {number} a bounded, normally distributed pseudorandom number.
+   * @argument {number} [mean] - distribution mean.
+   * @argument {number} [stdev] - distribution standard deviation.
+   * @argument {number} [skew] - distribution skewness.
+   * @returns {number} a bounded, normally distributed, pseudorandom number.
    */
   nextGaussian (min = 0.0, max = 1.0, mean = 0.0, stdev = 1.0, skew = 0.0) {
     const randomNormals = () => {
@@ -121,7 +127,8 @@ const Random = class {
     let random;
     if (skew === 0) {
       random = mean + (stdev * u);
-    } else {
+    } 
+    else {
       const correlation = skew / Math.sqrt(1 + (skew ** 2));
       const u1 = (correlation * u) + (v * Math.sqrt(1 - (correlation ** 2)));
       const z = (u >= 0 ? u1 : -u1);
@@ -137,18 +144,24 @@ const Random = class {
     if (ret < min || ret > max) return this.nextGaussian(min, max, mean, stdev, skew);
     return ret;
   }
+  static nextGaussian (min, max, mean, stdev, skew) {
+    return new Random().nextGaussian(min, max, mean, stdev, skew);
+  }
 
   /**
    * Generates a normally distributed, pseudorandom integer [min, max].
    * @argument {number} [min] - minimum bound.
    * @argument {number} [max] - maximum bound.
-   * @argument {number} [mean] - location.
-   * @argument {number} [stdev] - scale.
-   * @argument {number} [skew] - shape.
-   * @returns {number} a bounded, normally distributed pseudorandom integer.
+   * @argument {number} [mean] - distribution mean.
+   * @argument {number} [stdev] - distribution standard deviation.
+   * @argument {number} [skew] - distribution skewness.
+   * @returns {number} a bounded, normally distributed, pseudorandom integer.
    */
   nextGaussianInt (min = 0, max = 1, mean = 0.0, stdev = 1.0, skew = 0.0) {
     return Math.floor(this.nextGaussian(min, max, mean, stdev, skew));
+  }
+  static nextGaussianInt (min, max, mean, stdev, skew) {
+    return new Random().nextGaussianInt(min, max, mean, stdev, skew);
   }
 
   /**
@@ -161,6 +174,9 @@ const Random = class {
   nextInt (min = 0, max = 1, maxInclusive = false) {
     return Math.floor(this.next(min, max + (maxInclusive | 0)));
   }
+  static nextInt (min, max, maxInclusive) {
+    return new Random().nextInt(min, max, maxInclusive);
+  }
 
   /**
    * Generates a pseudorandom integer -1 or +1.
@@ -169,5 +185,8 @@ const Random = class {
    */
   nextSign (probabilityPositive = 0.5) {
     return (this.nextBoolean(probabilityPositive) ? +1 : -1);
+  }
+  static nextSign (probabilityPositive) {
+    return new Random().nextSign(probabilityPositive);
   }
 };
