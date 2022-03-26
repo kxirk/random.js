@@ -11,7 +11,7 @@ Features
 Random.js provides the following features:
 * Secure string generation
 * Seed generation
-* `next`, `nextBoolean`, `nextGaussian`, `nextGaussianInt`, `nextInt`, and `nextSign` implementations
+* `next`, `nextGaussian`, `nextInt`, `nextGaussianInt`, `nextBoolean`, and `nextSign` implementations
 
 
 Usage
@@ -48,14 +48,14 @@ random.seed = Random.generateSeed(randomString);
 Method | Usage
 ----- | -----
 next (min = 0.0, max = 1.0) | Generates a pseudorandom number [min, max)
-nextBoolean (probabilityTrue = 0.5) | Generates a pseudorandom boolean value
 nextGaussian (min = 0.0, max = 1.0, mean = 0.0, stdev = 1.0, skew = 0.0) | Generates a normally distributed, pseudorandom number [min, max]
-nextGaussianInt (min = 0, max = 1, mean = 0.0, stdev = 1.0, skew = 0.0) | Generates a normally distributed, pseudorandom integer [min, max]
 nextInt (min = 0, max = 1, maxInclusive = false) | Generates a pseudorandom integer [min, max)]
+nextGaussianInt (min = 0, max = 1, mean = 0.0, stdev = 1.0, skew = 0.0) | Generates a normally distributed, pseudorandom integer [min, max]
+nextBoolean (probabilityTrue = 0.5) | Generates a pseudorandom boolean value
 nextSign (probabilityPositive = 0.5) | Generates a pseudorandom integer -1 or +1
 
 ### Static Methods ###
-Random has static methods for `next`, `nextBoolean`, `nextGaussian`, `nextGaussianInt`, `nextInt`, and `nextSign` that are called using the same parameters as the instance methods. \
+Random has static methods for `next`, `nextGaussian`, `nextInt`, `nextGaussianInt`, `nextBoolean`, and `nextSign` that are called using the same parameters as the instance methods. \
 Each static method call will construct a Random instance using the default seed generation mechanism and return that method's output. Random instances constructed during static method calls are not persistent and can not have their seed/state specified.
 
 
