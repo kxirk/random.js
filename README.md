@@ -1,44 +1,55 @@
-Random.js
+random.js
 ==========
 
 A 32-bit seeded PRNG using MurmurHash3 (seeding) and Mulberry32 (number generation). \
-Based on JavaScript implementations by [bryc](https://github.com/bryc/code/blob/master/jshash/PRNGs.md).
-
+Based on JavaScript implementations by [bryc](<https://github.com/bryc/code/blob/master/jshash/PRNGs.md>). \
+Skew-Normal Transform by [Tom Liao](<https://spin.atomicobject.com/2019/09/30/skew-normal-prng-javascript/>).
 
 Features
 --------
 
-Random.js provides the following features:
-* Secure string generation
-* Seed generation
-* `next`, `nextGaussian`, `nextInt`, `nextGaussianInt`, `nextBoolean`, and `nextSign` implementations
+random.js provides the following features:
 
+* String generation
+* Seed generation
+* `next`, `nextInt`, `nextNormal`, `nextNormalInt`, `nextBoolean`, and `nextSign` methods
+* Configuring `floor`, `ceil`, `trunc`, or `round` on integer methods
 
 Usage
 -----
 
 ### Initialization ###
+
 Start by creating a Random instance:
+
 ``` js
 let random = new Random();
 ```
 
 ### Seeding ###
+
 Set the instance seed directly with a number:
+
 ``` js
 random.seed = 12345;
 ```
-Or use Random's seed generator with a string:
+
+Or use Random's seed generator by providing a string:
+
 ``` js
 random.seed = Random.generateSeed("seed");
 ```
 
 ### String Generation ###
-Alternatively, secure random strings can be generated:
+
+Alternatively, random strings can be generated:
+
 ``` js
-let randomString = Random.generateSecureString();
+let randomString = Random.generateString();
 ```
+
 And be used to seed the Random instance:
+
 ``` js
 random.seed = Random.generateSeed(randomString);
 ```
@@ -47,23 +58,17 @@ random.seed = Random.generateSeed(randomString);
 
 Method | Usage
 ----- | -----
-next (min = 0.0, max = 1.0) | Generates a pseudorandom number [min, max)
-nextGaussian (min = 0.0, max = 1.0, mean = 0.0, stdev = 1.0, skew = 0.0) | Generates a normally distributed, pseudorandom number [min, max]
-nextInt (min = 0, max = 1, maxInclusive = false) | Generates a pseudorandom integer [min, max)]
-nextGaussianInt (min = 0, max = 1, mean = 0.0, stdev = 1.0, skew = 0.0) | Generates a normally distributed, pseudorandom integer [min, max]
-nextBoolean (probabilityTrue = 0.5) | Generates a pseudorandom boolean value
+next (min = 0.0, max = 1.0) | Generates a pseudorandom float [min, max)
+nextInt (min, max, maxInclusive = false) | Generates a pseudorandom integer [min, max)]
+nextNormal (mean = 0.0, stdev = 1.0, skewness = 0.0) | Generates a normally distributed, unbounded, pseudorandom float
+nextNormalInt (mean, stdDev, skewness) | Generates a normally distributed, unbounded, pseudorandom integer
+nextBoolean (probabilityTrue = 0.5) | Generates a pseudorandom boolean
 nextSign (probabilityPositive = 0.5) | Generates a pseudorandom integer -1 or +1
-
-### Static Methods ###
-Random has static methods for `next`, `nextGaussian`, `nextInt`, `nextGaussianInt`, `nextBoolean`, and `nextSign` that are called using the same parameters as the instance methods. \
-Each static method call will construct a Random instance using the default seed generation mechanism and return that method's output. Random instances constructed during static method calls are not persistent and can not have their seed/state specified.
-
 
 Author
 ------
 
 [Cody Morton](https://github.com/kxirk)
-
 
 License
 -------
