@@ -161,4 +161,4 @@ const Random = class {
 };
 
 
-module.exports = Random;
+export default Random;
