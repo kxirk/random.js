@@ -11,7 +11,7 @@ random.js provides the following features:
 
 * String generation
 * Seed generation
-* `next`, `nextNormal`, `nextBoolean`, and `nextSign` methods
+* `next`, `nextTriangular`, `nextNormal`, `nextBoolean`, and `nextSign` methods
 
 Usage
 -----
@@ -57,6 +57,7 @@ random.seed = Random.generateSeed(randomString);
 Method | Usage
 ----- | -----
 next (min = 0.0, max = 1.0) | Generates a pseudorandom float [min, max)
+nextTriangular (min = 0.0, max = 1.0, mode = (min + max) / 2) | Generates a triangularly distributed pseudorandom float [min, max)
 nextNormal (mean = 0.0, sd = 1.0) | Generates a normally distributed, unbounded, pseudorandom float
 nextBoolean (probabilityTrue = 0.5) | Generates a pseudorandom boolean
 nextSign (probabilityPositive = 0.5) | Generates a pseudorandom integer -1 or +1

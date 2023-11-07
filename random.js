@@ -83,6 +83,23 @@ const Random = class {
   }
 
   /**
+   * @param {number} [min]
+   * @param {number} [max]
+   * @param {number} [mode]
+   * @returns {number} [min, max)
+   */
+  nextTriangular (min = 0.0, max = 1.0, mode = (min + max) / 2) {
+    const variate = this.next();
+
+    const F = (mode - min) / (max - min);
+    if (variate < F) {
+      return min + Math.sqrt(variate * (max - min) * (mode - min));
+    }
+
+    return max - Math.sqrt((1 - variate) * (max - min) * (max - mode));
+  }
+
+  /**
    * @param {number} [mean]
    * @param {number} [sd]
    * @returns {number}
