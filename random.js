@@ -1,17 +1,13 @@
 /**
- * A 32-bit seeded PRNG. Based on JavaScript implementations by bryc (https://github.com/bryc/code/blob/master/jshash/PRNGs.md).
- * Skew-Normal Transform by Tom Liao (https://spin.atomicobject.com/2019/09/30/skew-normal-prng-javascript/).
- * Version: 2.0.0
- * Date: 2023-03-07
+ * A 32-bit seeded PRNG. Based on JavaScript implementations by bryc (https://github.com/bryc/code/blob/master/jshash/PRNGs.md)
+ * Version: 3.0.0
+ * Date: 2023-11-07
  */
 const Random = class {
   /** @type {number} */
   #seed;
   /** @type {number} */
   #state;
-
-  /** @type {string} */
-  #round; // floor, ceil, trunc, round
 
   /**
    * @param {number} [charCount]
@@ -53,11 +49,9 @@ const Random = class {
    * @param {number} [seed]
    * @param {string} [round]
    */
-  constructor (seed = Random.generateSeed(), round = "trunc") {
+  constructor (seed = Random.generateSeed()) {
     this.#seed = seed;
     this.state = seed;
-
-    this.round = round;
   }
 
 
@@ -71,43 +65,46 @@ const Random = class {
   }
 
 
-  /** @type {string} */
-  get round () { return this.#round; }
-  set round (round) { this.#round = round; }
-
-
   /**
    * @param {number} [min]
    * @param {number} [max]
    * @returns {number} [min, max)
    */
   next (min = 0.0, max = 1.0) {
-    // Mulberry32
-    this.#state |= 0; this.#state += 0x6D2B79F5 | 0;
+    // SplitMix32
+    this.#state |= 0; this.#state += 0x9e3779b9 | 0;
 
-    let t = Math.imul(this.#state ^ (this.#state >>> 15), 1 | this.#state);
-    t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+    let t = Math.imul(this.#state ^ (this.#state >>> 16), 0x21f0aaad);
+    t = Math.imul(t ^ (t >>> 15), 0x735a2d97);
 
     const random = ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+
     return (random * (max - min)) + min;
   }
+
   /**
-   * @param {number} min
-   * @param {number} max
-   * @param {boolean} [maxIncluded]
-   * @returns {number} integer [min, max)]
+   * @param {number} [min]
+   * @param {number} [max]
+   * @param {number} [mode]
+   * @returns {number} [min, max)
    */
-  nextInt (min, max, maxIncluded = false) {
-    return Math[this.round](this.next(min, max + (maxIncluded | 0)));
+  nextTriangular (min = 0.0, max = 1.0, mode = (min + max) / 2) {
+    const variate = this.next();
+
+    const F = (mode - min) / (max - min);
+    if (variate < F) {
+      return min + Math.sqrt(variate * (max - min) * (mode - min));
+    }
+
+    return max - Math.sqrt((1 - variate) * (max - min) * (max - mode));
   }
 
   /**
    * @param {number} [mean]
-   * @param {number} [stdDev]
-   * @param {number} [skewness]
+   * @param {number} [sd]
    * @returns {number}
    */
-  nextNormal (mean = 0.0, stdDev = 1.0, skewness = 0.0) {
+  nextNormal (mean = 0.0, sd = 1.0) {
     // Box-Muller transform
     let u = 0; while (u === 0) u = this.next();
     let v = 0; while (v === 0) v = this.next();
@@ -115,32 +112,9 @@ const Random = class {
     const r = Math.sqrt(-2 * Math.log(u));
     const theta = (2 * Math.PI * v);
 
-    const x = (r * Math.cos(theta));
-    const y = (r * Math.sin(theta));
+    const z = (r * Math.cos(theta)); // (r * Math.sin(theta))
 
-    // skew-normal transform
-    let num;
-    if (skewness === 0) {
-      num = ((x * stdDev) + mean);
-    }
-    else {
-      const correlation = (skewness / Math.sqrt(1 + (skewness ** 2)));
-      const k = ((x * correlation) + (y * Math.sqrt(1 - (correlation ** 2))));
-      const z = ((x >= 0) ? k : -k);
-
-      num = ((z * stdDev) + mean);
-    }
-
-    return num;
-  }
-  /**
-   * @param {number} mean
-   * @param {number} stdDev
-   * @param {number} skewness
-   * @returns {number}
-   */
-  nextNormalInt (mean, stdDev, skewness) {
-    return Math[this.round](this.nextNormal(mean, stdDev, skewness));
+    return ((z * sd) + mean);
   }
 
   /**
@@ -159,6 +133,4 @@ const Random = class {
     return (this.nextBoolean(probabilityPositive) ? +1 : -1);
   }
 };
-
-
 export default Random;

@@ -1,9 +1,8 @@
 random.js
 ==========
 
-A 32-bit seeded PRNG using MurmurHash3 (seeding) and Mulberry32 (number generation). \
-Based on JavaScript implementations by [bryc](<https://github.com/bryc/code/blob/master/jshash/PRNGs.md>). \
-Skew-Normal Transform by [Tom Liao](<https://spin.atomicobject.com/2019/09/30/skew-normal-prng-javascript/>).
+A 32-bit seeded PRNG using MurmurHash3 (seeding) and SplitMix32 (number generation). \
+Based on JavaScript implementations by [bryc](<https://github.com/bryc/code/blob/master/jshash/PRNGs.md>).
 
 Features
 --------
@@ -12,8 +11,7 @@ random.js provides the following features:
 
 * String generation
 * Seed generation
-* `next`, `nextInt`, `nextNormal`, `nextNormalInt`, `nextBoolean`, and `nextSign` methods
-* Configuring `floor`, `ceil`, `trunc`, or `round` on integer methods
+* `next`, `nextTriangular`, `nextNormal`, `nextBoolean`, and `nextSign` methods
 
 Usage
 -----
@@ -59,9 +57,8 @@ random.seed = Random.generateSeed(randomString);
 Method | Usage
 ----- | -----
 next (min = 0.0, max = 1.0) | Generates a pseudorandom float [min, max)
-nextInt (min, max, maxInclusive = false) | Generates a pseudorandom integer [min, max)]
-nextNormal (mean = 0.0, stdev = 1.0, skewness = 0.0) | Generates a normally distributed, unbounded, pseudorandom float
-nextNormalInt (mean, stdDev, skewness) | Generates a normally distributed, unbounded, pseudorandom integer
+nextTriangular (min = 0.0, max = 1.0, mode = (min + max) / 2) | Generates a triangularly distributed pseudorandom float [min, max)
+nextNormal (mean = 0.0, sd = 1.0) | Generates a normally distributed, unbounded, pseudorandom float
 nextBoolean (probabilityTrue = 0.5) | Generates a pseudorandom boolean
 nextSign (probabilityPositive = 0.5) | Generates a pseudorandom integer -1 or +1
 
