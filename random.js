@@ -1,6 +1,5 @@
 /**
- * A 32-bit seeded PRNG. Based on JavaScript implementations by bryc (https://github.com/bryc/code/blob/master/jshash/PRNGs.md).
- * Skew-Normal Transform by Tom Liao (https://spin.atomicobject.com/2019/09/30/skew-normal-prng-javascript/).
+ * A 32-bit seeded PRNG. Based on JavaScript implementations by bryc (https://github.com/bryc/code/blob/master/jshash/PRNGs.md)
  * Version: 3.0.0
  * Date: 2023-11-07
  */
@@ -85,11 +84,10 @@ const Random = class {
 
   /**
    * @param {number} [mean]
-   * @param {number} [stdDev]
-   * @param {number} [skewness]
+   * @param {number} [sd]
    * @returns {number}
    */
-  nextNormal (mean = 0.0, stdDev = 1.0, skewness = 0.0) {
+  nextNormal (mean = 0.0, sd = 1.0) {
     // Box-Muller transform
     let u = 0; while (u === 0) u = this.next();
     let v = 0; while (v === 0) v = this.next();
@@ -97,23 +95,9 @@ const Random = class {
     const r = Math.sqrt(-2 * Math.log(u));
     const theta = (2 * Math.PI * v);
 
-    const x = (r * Math.cos(theta));
-    const y = (r * Math.sin(theta));
+    const z = (r * Math.cos(theta)); // (r * Math.sin(theta))
 
-    // skew-normal transform
-    let num;
-    if (skewness === 0) {
-      num = ((x * stdDev) + mean);
-    }
-    else {
-      const correlation = (skewness / Math.sqrt(1 + (skewness ** 2)));
-      const k = ((x * correlation) + (y * Math.sqrt(1 - (correlation ** 2))));
-      const z = ((x >= 0) ? k : -k);
-
-      num = ((z * stdDev) + mean);
-    }
-
-    return num;
+    return ((z * sd) + mean);
   }
 
   /**

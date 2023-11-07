@@ -2,8 +2,7 @@ random.js
 ==========
 
 A 32-bit seeded PRNG using MurmurHash3 (seeding) and SplitMix32 (number generation). \
-Based on JavaScript implementations by [bryc](<https://github.com/bryc/code/blob/master/jshash/PRNGs.md>). \
-Skew-Normal Transform by [Tom Liao](<https://spin.atomicobject.com/2019/09/30/skew-normal-prng-javascript/>).
+Based on JavaScript implementations by [bryc](<https://github.com/bryc/code/blob/master/jshash/PRNGs.md>).
 
 Features
 --------
@@ -58,7 +57,7 @@ random.seed = Random.generateSeed(randomString);
 Method | Usage
 ----- | -----
 next (min = 0.0, max = 1.0) | Generates a pseudorandom float [min, max)
-nextNormal (mean = 0.0, stdev = 1.0, skewness = 0.0) | Generates a normally distributed, unbounded, pseudorandom float
+nextNormal (mean = 0.0, sd = 1.0) | Generates a normally distributed, unbounded, pseudorandom float
 nextBoolean (probabilityTrue = 0.5) | Generates a pseudorandom boolean
 nextSign (probabilityPositive = 0.5) | Generates a pseudorandom integer -1 or +1
 
