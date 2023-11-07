@@ -10,9 +10,6 @@ const Random = class {
   /** @type {number} */
   #state;
 
-  /** @type {string} */
-  #round; // floor, ceil, trunc, round
-
   /**
    * @param {number} [charCount]
    * @returns {string}
@@ -53,11 +50,9 @@ const Random = class {
    * @param {number} [seed]
    * @param {string} [round]
    */
-  constructor (seed = Random.generateSeed(), round = "trunc") {
+  constructor (seed = Random.generateSeed()) {
     this.#seed = seed;
     this.state = seed;
-
-    this.round = round;
   }
 
 
@@ -69,11 +64,6 @@ const Random = class {
   set state (state) {
     this.#state = (state ?? this.#state);
   }
-
-
-  /** @type {string} */
-  get round () { return this.#round; }
-  set round (round) { this.#round = round; }
 
 
   /**
@@ -91,15 +81,6 @@ const Random = class {
     const random = ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 
     return (random * (max - min)) + min;
-  }
-  /**
-   * @param {number} min
-   * @param {number} max
-   * @param {boolean} [maxIncluded]
-   * @returns {number} integer [min, max)]
-   */
-  nextInt (min, max, maxIncluded = false) {
-    return Math[this.round](this.next(min, max + (maxIncluded | 0)));
   }
 
   /**
@@ -133,15 +114,6 @@ const Random = class {
     }
 
     return num;
-  }
-  /**
-   * @param {number} mean
-   * @param {number} stdDev
-   * @param {number} skewness
-   * @returns {number}
-   */
-  nextNormalInt (mean, stdDev, skewness) {
-    return Math[this.round](this.nextNormal(mean, stdDev, skewness));
   }
 
   /**
