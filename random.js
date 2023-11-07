@@ -1,8 +1,8 @@
 /**
  * A 32-bit seeded PRNG. Based on JavaScript implementations by bryc (https://github.com/bryc/code/blob/master/jshash/PRNGs.md).
  * Skew-Normal Transform by Tom Liao (https://spin.atomicobject.com/2019/09/30/skew-normal-prng-javascript/).
- * Version: 2.0.0
- * Date: 2023-03-07
+ * Version: 3.0.0
+ * Date: 2023-11-07
  */
 const Random = class {
   /** @type {number} */
@@ -82,13 +82,14 @@ const Random = class {
    * @returns {number} [min, max)
    */
   next (min = 0.0, max = 1.0) {
-    // Mulberry32
-    this.#state |= 0; this.#state += 0x6D2B79F5 | 0;
+    // SplitMix32
+    this.#state |= 0; this.#state += 0x9e3779b9 | 0;
 
-    let t = Math.imul(this.#state ^ (this.#state >>> 15), 1 | this.#state);
-    t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+    let t = Math.imul(this.#state ^ (this.#state >>> 16), 0x21f0aaad);
+    t = Math.imul(t ^ (t >>> 15), 0x735a2d97);
 
     const random = ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+
     return (random * (max - min)) + min;
   }
   /**

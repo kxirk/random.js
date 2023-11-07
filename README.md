@@ -1,7 +1,7 @@
 random.js
 ==========
 
-A 32-bit seeded PRNG using MurmurHash3 (seeding) and Mulberry32 (number generation). \
+A 32-bit seeded PRNG using MurmurHash3 (seeding) and SplitMix32 (number generation). \
 Based on JavaScript implementations by [bryc](<https://github.com/bryc/code/blob/master/jshash/PRNGs.md>). \
 Skew-Normal Transform by [Tom Liao](<https://spin.atomicobject.com/2019/09/30/skew-normal-prng-javascript/>).
 
