@@ -72,12 +72,12 @@ const Random = class {
    */
   next (min = 0.0, max = 1.0) {
     // SplitMix32
-    this.#state |= 0; this.#state += 0x9e3779b9 | 0;
+    this.#state |= 0; this.#state += (0x9e3779b9 | 0);
 
     let t = Math.imul(this.#state ^ (this.#state >>> 16), 0x21f0aaad);
     t = Math.imul(t ^ (t >>> 15), 0x735a2d97);
 
-    const random = ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    const random = ((t ^ (t >>> 15)) >>> 0) / 4294967296;
 
     return (random * (max - min)) + min;
   }
