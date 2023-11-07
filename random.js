@@ -1,6 +1,6 @@
 /**
  * A 32-bit seeded PRNG. Based on JavaScript implementations by bryc (https://github.com/bryc/code/blob/master/jshash/PRNGs.md)
- * Version: 3.0.0
+ * Version: 3.0.1
  * Date: 2023-11-07
  */
 const Random = class {
