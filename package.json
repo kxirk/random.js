@@ -1,0 +1,14 @@
+{
+  "name": "@kxirk/random",
+  "version": "3.0.0",
+  "license": "MIT",
+  "author": "Cody Morton",
+
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kxirk/random.js"
+  },
+
+  "type": "module",
+  "main": "random.js"
+}

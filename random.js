@@ -133,6 +133,4 @@ const Random = class {
     return (this.nextBoolean(probabilityPositive) ? +1 : -1);
   }
 };
-
-
 export default Random;
