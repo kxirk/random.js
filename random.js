@@ -1,13 +1,11 @@
+/* eslint-disable no-bitwise */ // library
+
+
 /**
  * A 32-bit seeded PRNG. Based on JavaScript implementations by bryc (https://github.com/bryc/code/blob/master/jshash/PRNGs.md)
- * Version: 3.0.1
- * Date: 2023-11-07
  */
 const Random = class {
-  /** @type {number} */
-  #seed;
-  /** @type {number} */
-  #state;
+  /** @type {Random} */ static shared = new this(Date.now());
 
   /**
    * @param {number} [charCount]
@@ -45,13 +43,16 @@ const Random = class {
     return h;
   }
 
+
+  /** @type {number} */ #seed;
+  /** @type {number} */ #state;
+
   /**
    * @param {number} [seed]
-   * @param {string} [round]
    */
   constructor (seed = Random.generateSeed()) {
     this.#seed = seed;
-    this.state = seed;
+    this.#state = seed;
   }
 
 
@@ -60,9 +61,7 @@ const Random = class {
 
   /** @type {number} */
   get state () { return this.#state; }
-  set state (state) {
-    this.#state = (state ?? this.#state);
-  }
+  set state (state) { this.#state = state; }
 
 
   /**
@@ -74,12 +73,12 @@ const Random = class {
     // SplitMix32
     this.#state |= 0; this.#state += (0x9e3779b9 | 0);
 
-    let t = Math.imul(this.#state ^ (this.#state >>> 16), 0x21f0aaad);
-    t = Math.imul(t ^ (t >>> 15), 0x735a2d97);
+    let t = Math.imul((this.#state ^ (this.#state >>> 16)), 0x21f0aaad);
+    t = Math.imul((t ^ (t >>> 15)), 0x735a2d97);
 
-    const random = ((t ^ (t >>> 15)) >>> 0) / 4294967296;
+    const random = (((t ^ (t >>> 15)) >>> 0) / 4294967296);
 
-    return (random * (max - min)) + min;
+    return ((random * (max - min)) + min);
   }
 
   /**
@@ -91,12 +90,11 @@ const Random = class {
   nextTriangular (min = 0.0, max = 1.0, mode = (min + max) / 2) {
     const variate = this.next();
 
-    const F = (mode - min) / (max - min);
-    if (variate < F) {
-      return min + Math.sqrt(variate * (max - min) * (mode - min));
+    const inflection = ((mode - min) / (max - min));
+    if (variate < inflection) {
+      return (min + Math.sqrt(variate * (max - min) * (mode - min)));
     }
-
-    return max - Math.sqrt((1 - variate) * (max - min) * (max - mode));
+    return (max - Math.sqrt((1 - variate) * (max - min) * (max - mode)));
   }
 
   /**
